@@ -1,5 +1,6 @@
 const searchBtn = document.getElementById("search-button");
 const userInput = document.getElementById("search-input");
+const pokemonCont = document.getElementById("pokemon-container");
 const pokemonApi = "https://pokeapi-proxy.freecodecamp.rocks/api/pokemon";
 
 const getPokemon = async () => {
@@ -8,21 +9,22 @@ const getPokemon = async () => {
         const data = await res.json();
         const {results} = data;
         const pokemonToSearch = userInput.value.toLowerCase();
-        console.log(results); 
-        
-        let allPokemonNames = [];
-        results.forEach(({id,name,url}) => {
-            allPokemonNames.push(name);
-        });
-        console.log(allPokemonNames);
+        userInput.value = "";
         console.log(results);
-
-        if (!allPokemonNames.includes(pokemonToSearch)) {
+        let pokemonFound = false; 
+        let pokemonUrl = "";
+        
+        results.forEach(({id,name,url}) => {
+            if (pokemonToSearch == name || pokemonToSearch == id) {
+                pokemonFound = true;
+                pokemonUrl = url;
+                return;
+            }
+        });
+        if (!pokemonFound) {
             alert("Pokémon not found");
         } else {
-            const pokemonUrl = results[allPokemonNames.indexOf(pokemonToSearch)].url;
-            console.log(pokemonToSearch);
-            console.log(pokemonUrl);
+            console.log("found");
             fetch(pokemonUrl)
                 .then((res) => res.json())
                 .then((data) => {
@@ -30,6 +32,8 @@ const getPokemon = async () => {
                 })
                 .catch((err) => console.log(`Data Error: ${err}`));
         }
+        console.log(results);
+
     } catch (err) {
         console.log(`Caught Error: ${err}`);
     }
@@ -56,9 +60,9 @@ const updateStats = (data) => {
     const pTypes = document.getElementById("types");
 
     pName.textContent = name.toUpperCase();
-    pId.textContent = id;
-    pWeight.textContent = weight;
-    pHeight.textContent = height;
+    pId.textContent = `#${id}`;
+    pWeight.textContent = `Weight: ${weight}`;
+    pHeight.textContent = `Height: ${height}`;
 
     pTypes.innerHTML = "";
     console.log(`These are the types:`, types);
@@ -74,6 +78,13 @@ const updateStats = (data) => {
     spAttack.textContent = stats[3].base_stat;
     spDefense.textContent = stats[4].base_stat;
     speed.textContent = stats[5].base_stat;
+
+    const {front_default} = sprites;
+    const img = document.createElement(`img`);
+    img.id = "sprite";
+    img.src = front_default;
+    pokemonCont.removeChild(pokemonCont.lastChild);
+    pokemonCont.appendChild(img);
 
 };
 
